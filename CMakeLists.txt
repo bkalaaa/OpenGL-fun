@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 project(MyOpenGLApp)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+# for clangd
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # GLFW
 set(GLFW_LIBRARY "$ENV{HOME}/OpenGL/Libraries/GLFW/lib/libglfw3.a")
