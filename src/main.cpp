@@ -2,6 +2,12 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
+const char *vertexShaderSource = "#version 330 core\n" // Dynamically complied at runtime barebones vertex shader
+    "layout (location = 0) in vec3 aPos;\n"
+    "void main() {\n"
+    "\tglPosition = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "}\0";
+
 int WINDOWWIDTH = 800;
 int WINDOWHEIGHT = 600;
 
@@ -34,6 +40,18 @@ int main() {
         glfwTerminate();
         return -1;
     }
+
+    float vertices[] = { // Vertice data
+        -.5f, -.5f, 0.f,
+        .5f, -.5f, 0.f,
+        0.f, .5f, 0.f
+    };
+    unsigned int VBO;
+    glGenBuffers(1, &VBO); // assign 1 ID (size 1, not num) to Vertice Buffer Object ptr
+    glBindBuffer(GL_ARRAY_BUFFER, VBO); // Stateful binding, when utlizing GL_ARRAY_BUFFER will affect VBO
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // Assign vertice data to buffer
+    
+    
 
     glViewport(0, 0, WINDOWWIDTH, WINDOWHEIGHT);
 
