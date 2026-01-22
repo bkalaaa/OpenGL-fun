@@ -60,21 +60,39 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, VBO); // Stateful binding, when utlizing GL_ARRAY_BUFFER will affect VBO
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // Assign vertice data to buffer
     
+    // Vertex Shader Init
     unsigned int vertexShader; 
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL); // Load in one vertex shader from string pointer 
     glCompileShader(vertexShader);
 
-    // Logging
-    int success;
-    char infoLog[512];
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success) { // If fail log to buffer
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAIL" << infoLog << std::endl;
+    // Vertex Shader Logging
+    {
+        int success;
+        glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+        char infoLog[512];
+        if (!success) { // If fail log to buffer
+            glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+            std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAIL" << infoLog << std::endl;
+        }
     }
 
-    
+    // Fragment Shader Init
+    unsigned int fragmentShader;
+    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+
+    // Fragment Shader Logging (Check why doesn't work)
+    {
+        int success;
+        glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+        char infoLog[512];
+        if (!success) {
+            glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+            std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAIL" << infoLog << std::endl;
+        }
+    }
 
     glViewport(0, 0, WINDOWWIDTH, WINDOWHEIGHT);
 
