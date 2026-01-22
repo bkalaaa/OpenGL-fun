@@ -8,7 +8,7 @@ const char *fragmentShaderSource = "#version 330 core\n"
     "out vec4 FragColor;\n"
     "\n"
     "void main() {\n"
-    "    FragColor = vec4(0.0f, 1.0f, 0.0f, 0.0f);\n"
+    "    FragColor = vec4(0.0f, 1.0f, 0.0f, 1.0f);\n"
     "}\0";
 
 const char *vertexShaderSource = "#version 330 core\n" // Dynamically complied at runtime barebones vertex shader
@@ -66,11 +66,11 @@ int main() {
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL); // Load in one vertex shader from string pointer 
     glCompileShader(vertexShader);
 
+    char infoLog[512];
     // Vertex Shader Logging
     {
         int success;
         glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-        char infoLog[512];
         if (!success) { // If fail log to buffer
             glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
             std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAIL" << infoLog << std::endl;
@@ -87,12 +87,33 @@ int main() {
     {
         int success;
         glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-        char infoLog[512];
         if (!success) {
             glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
             std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAIL" << infoLog << std::endl;
         }
     }
+
+    // Shader Program (Linked to both runtime shaders)
+    unsigned int shaderProgram;
+    shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    glLinkProgram(shaderProgram);
+
+    // Shader Program Logger
+    {
+        int success;
+        glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+        if (!success) {
+            glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+            std::cout << "ERROR::PROGRAM:SHADER::COMPILATION_FAIL" << infoLog << std::endl;
+        }
+    }
+
+    glUseProgram(shaderProgram);
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
 
     glViewport(0, 0, WINDOWWIDTH, WINDOWHEIGHT);
 
