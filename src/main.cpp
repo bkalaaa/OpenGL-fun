@@ -1,11 +1,20 @@
+#include <cstddef>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <ostream>
+
+const char *fragmentShaderSource = "#version 330 core\n"
+    "out vec4 FragColor;\n"
+    "\n"
+    "void main() {\n"
+    "    FragColor = vec4(0.0f, 1.0f, 0.0f, 0.0f);\n"
+    "}\0";
 
 const char *vertexShaderSource = "#version 330 core\n" // Dynamically complied at runtime barebones vertex shader
     "layout (location = 0) in vec3 aPos;\n"
     "void main() {\n"
-    "\tglPosition = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "\tgl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
     "}\0";
 
 int WINDOWWIDTH = 800;
@@ -51,6 +60,20 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, VBO); // Stateful binding, when utlizing GL_ARRAY_BUFFER will affect VBO
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // Assign vertice data to buffer
     
+    unsigned int vertexShader; 
+    vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL); // Load in one vertex shader from string pointer 
+    glCompileShader(vertexShader);
+
+    // Logging
+    int success;
+    char infoLog[512];
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+    if (!success) { // If fail log to buffer
+        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAIL" << infoLog << std::endl;
+    }
+
     
 
     glViewport(0, 0, WINDOWWIDTH, WINDOWHEIGHT);
