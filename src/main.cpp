@@ -8,7 +8,7 @@ const char *fragmentShaderSource = "#version 330 core\n"
     "out vec4 FragColor;\n"
     "\n"
     "void main() {\n"
-    "    FragColor = vec4(0.0f, 1.0f, 0.0f, 1.0f);\n"
+    "    FragColor = vec4(0.5f, 0.0f, 0.1f, 1.0f);\n"
     "}\0";
 
 const char *vertexShaderSource = "#version 330 core\n" // Dynamically complied at runtime barebones vertex shader
@@ -42,7 +42,9 @@ int main() {
         glfwTerminate();
         return -1;
     }
+
     glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); // Callback for when resizing
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "Failed to load GLAD" << std::endl;
@@ -50,16 +52,6 @@ int main() {
         return -1;
     }
 
-    float vertices[] = { // Vertice data
-        -.5f, -.5f, 0.f,
-        .5f, -.5f, 0.f,
-        0.f, .5f, 0.f
-    };
-    unsigned int VBO;
-    glGenBuffers(1, &VBO); // assign 1 ID (size 1, not num) to Vertice Buffer Object ptr
-    glBindBuffer(GL_ARRAY_BUFFER, VBO); // Stateful binding, when utlizing GL_ARRAY_BUFFER will affect VBO
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // Assign vertice data to buffer
-    
     // Vertex Shader Init
     unsigned int vertexShader; 
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -106,30 +98,53 @@ int main() {
         glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
         if (!success) {
             glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-            std::cout << "ERROR::PROGRAM:SHADER::COMPILATION_FAIL" << infoLog << std::endl;
+            std::cout << "ERROR::PROGRAM:SHADER::LINKING_FAILED" << infoLog << std::endl;
         }
     }
 
-    glUseProgram(shaderProgram);
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
+    float vertices[] = { // Vertice data
+        -.5f, -.5f, 0.f,
+        .5f, -.5f, 0.f,
+        0.f, .5f, 0.f
+    };
+    unsigned int VAO, VBO;
+    
+    glGenVertexArrays(1, &VAO); // Array so pointers don't need to be overreasigned when rebuilding
+    glGenBuffers(1, &VBO); // assign 1 ID (size 1, not num) to Vertice Buffer Object ptr
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO); // Stateful binding, when utlizing GL_ARRAY_BUFFER will affect VBO
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); // Assign vertice data to buffer
+    
+    // Set vertex attribute pointers
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
 
     glViewport(0, 0, WINDOWWIDTH, WINDOWHEIGHT);
-
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); // Callback for when resizing
+    glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 
     while (!glfwWindowShouldClose(window)) {
         processInput(window); // Check inputs (keypress, joystick)
 
         // Render logic in middle
+        
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        glUseProgram(shaderProgram);
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         // Check and call events then swap the buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+
+    glDeleteBuffers(1, &VBO);
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteProgram(shaderProgram);
 
     glfwTerminate();
     return 0;
