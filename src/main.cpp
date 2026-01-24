@@ -123,7 +123,7 @@ int main() {
     glEnableVertexAttribArray(0);
 
     glViewport(0, 0, WINDOWWIDTH, WINDOWHEIGHT);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     while (!glfwWindowShouldClose(window)) {
         processInput(window); // Check inputs (keypress, joystick)
